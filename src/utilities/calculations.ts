@@ -1,9 +1,4 @@
-interface DistanceRange {
-    min: number;
-    max: number;
-    a: number;
-    b: number;
-}
+
 
 export const calculateSurcharge = (cartValue: number, minimumValue: number): number => {
     return cartValue < minimumValue ? minimumValue - cartValue : 0;
@@ -12,16 +7,40 @@ export const calculateSurcharge = (cartValue: number, minimumValue: number): num
 export const calculateDeliveryFee = (
     basePrice: number,
     distance: number,
-    distanceRanges: DistanceRange[]
+    distanceRanges: Array<{ min: number; max: number; a: number; b: number }>
 ): number | null => {
+    console.log(`Starting delivery fee calculation:`);
+    console.log(`Base Price: ${basePrice}, Distance: ${distance} meters`);
+
     for (const range of distanceRanges) {
+        console.log(`Processing range:`, range);
+
         if (distance >= range.min && (range.max === 0 || distance < range.max)) {
+            // Distance falls into this range
+            if (range.max === 0) {
+                // Delivery is not possible for distances equal to or beyond `range.min` when `max === 0`
+                console.log(`Delivery not possible for distance: ${distance}`);
+                return null;
+            }
+
+            // Calculate the fee for this range
             const additionalFee = range.a + Math.round((range.b * distance) / 10);
-            return basePrice + additionalFee;
+            const totalFee = basePrice + additionalFee;
+
+            console.log(`Distance: ${distance} meters falls within range (${range.min}-${range.max === 0 ? '∞' : range.max} meters)`);
+            console.log(`Additional Fee: a=${range.a}, b=${range.b}, Calculated Fee=${additionalFee}`);
+            console.log(`Total Fee (including base price): ${totalFee}`);
+
+            return totalFee;
         }
     }
-    return null; // Delivery not possible
+
+    // If no range matches, return null (unlikely due to provided assumptions)
+    console.log(`No matching range found for distance: ${distance}`);
+    return null;
 };
+
+
 
 export const calculateTotalPrice = (cartValue: number, surcharge: number, deliveryFee: number): number => {
     return cartValue + surcharge + deliveryFee;

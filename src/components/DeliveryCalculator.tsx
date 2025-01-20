@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import InputField from './InputField';
 import PriceBreakdown from './PriceBreakdown';
 import { fetchStaticData, fetchDynamicData } from '../utilities/api';
@@ -25,7 +25,7 @@ const DeliveryCalculator: React.FC = () => {
         }
 
         try {
-            const [venueCoordinates, dynamicData] = await Promise.all([
+            const [venueCoordinates, dynamicData]: [[number, number], DeliverySpecs] = await Promise.all([
                 fetchStaticData(venueSlug),
                 fetchDynamicData(venueSlug),
             ]);
@@ -75,7 +75,11 @@ const DeliveryCalculator: React.FC = () => {
             setResults(null);
         }
     };
-
+    useEffect(() => {
+        if (results) {
+            console.log('Calculation Results:', results);
+        }
+    }, [results]); // This will run whenever `results` is updated
 
     return (
         <div>
