@@ -1,0 +1,13 @@
+import axios from 'axios';
+
+const BASE_URL = 'https://consumer-api.development.dev.woltapi.com/home-assignment-api/v1/venues';
+
+export const fetchStaticData = async (venueSlug: string): Promise<[number, number]> => {
+    const response = await axios.get(`${BASE_URL}/${venueSlug}/static`);
+    return response.data.venue_raw.location.coordinates; // [longitude, latitude]
+};
+
+export const fetchDynamicData = async (venueSlug: string): Promise<unknown> => {
+    const response = await axios.get(`${BASE_URL}/${venueSlug}/dynamic`);
+    return response.data.venue_raw.delivery_specs;
+};
