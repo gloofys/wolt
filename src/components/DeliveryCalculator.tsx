@@ -2,13 +2,13 @@ import React, { useState } from 'react';
 import InputField from './InputField';
 import PriceBreakdown from './PriceBreakdown';
 import { fetchStaticData, fetchDynamicData } from '../utilities/api';
-import { calculateSurcharge, calculateDeliveryFee, calculateTotalPrice } from '../utilities/calculations';
+import { calculateSurcharge, calculateDeliveryFee, calculateTotalPrice, calculateHaversineDistance } from '../utilities/calculations';
 
 const DeliveryCalculator: React.FC = () => {
     const [venueSlug, setVenueSlug] = useState('');
-    const [cartValue, setCartValue] = useState(0);
-    const [latitude, setLatitude] = useState('');
-    const [longitude, setLongitude] = useState('');
+    const [cartValue, setCartValue] = useState<string | number>('');
+    const [latitude, setLatitude] = useState<string | number>('');
+    const [longitude, setLongitude] = useState<string | number>('');
     const [results, setResults] = useState<{
         cartValue: number;
         smallOrderSurcharge: number;
@@ -19,6 +19,11 @@ const DeliveryCalculator: React.FC = () => {
     const [error, setError] = useState('');
 
     const handleCalculate = async () => {
+        if (!venueSlug || cartValue === '' || latitude === '' || longitude === '') {
+            setError('All fields are required. Please provide valid inputs.');
+            return;
+        }
+
         try {
             const [venueCoordinates, dynamicData] = await Promise.all([
                 fetchStaticData(venueSlug),
@@ -26,13 +31,22 @@ const DeliveryCalculator: React.FC = () => {
             ]);
 
             const [venueLongitude, venueLatitude] = venueCoordinates;
-            const deliveryDistance =
-                Math.sqrt(
-                    Math.pow(Number(latitude) - venueLatitude, 2) +
-                    Math.pow(Number(longitude) - venueLongitude, 2)
-                ) * 111139;
+            const deliveryDistance = calculateHaversineDistance(
+                Number(latitude),
+                Number(longitude),
+                venueLatitude,
+                venueLongitude
+            );
 
-            const surcharge = calculateSurcharge(cartValue * 100, dynamicData.order_minimum_no_surcharge);
+            console.log('Delivery Distance Calculation:', {
+                latitude: Number(latitude),
+                venueLatitude,
+                longitude: Number(longitude),
+                venueLongitude,
+                deliveryDistance,
+            });
+
+            const surcharge = calculateSurcharge(Number(cartValue) * 100, dynamicData.order_minimum_no_surcharge);
             const deliveryFee = calculateDeliveryFee(
                 dynamicData.delivery_pricing.base_price,
                 deliveryDistance,
@@ -45,10 +59,10 @@ const DeliveryCalculator: React.FC = () => {
                 return;
             }
 
-            const totalPrice = calculateTotalPrice(cartValue * 100, surcharge, deliveryFee);
+            const totalPrice = calculateTotalPrice(Number(cartValue) * 100, surcharge, deliveryFee);
 
             setResults({
-                cartValue: cartValue * 100,
+                cartValue: Number(cartValue) * 100,
                 smallOrderSurcharge: surcharge,
                 deliveryFee,
                 deliveryDistance: Math.round(deliveryDistance),
@@ -62,12 +76,30 @@ const DeliveryCalculator: React.FC = () => {
         }
     };
 
+
     return (
         <div>
-            <InputField label="Venue Slug" value={venueSlug} onChange={setVenueSlug} testId="venueSlug" />
-            <InputField label="Cart Value (€)" value={cartValue} onChange={(value) => setCartValue(Number(value))} type="number" testId="cartValue" />
-            <InputField label="Latitude" value={latitude} onChange={setLatitude} testId="userLatitude" />
-            <InputField label="Longitude" value={longitude} onChange={setLongitude} testId="userLongitude" />
+            <InputField label="Venue Slug"
+                        value={venueSlug}
+                        onChange={setVenueSlug}
+                        testId="venueSlug"
+            />
+            <InputField label="Cart Value (€)"
+                        value={cartValue}
+                        onChange={(value) => setCartValue(value)}
+                        type="number"
+                        testId="cartValue"
+            />
+            <InputField label="Latitude"
+                        value={latitude}
+                        onChange={(value) => setLatitude(value)}
+                        testId="userLatitude"
+            />
+            <InputField label="Longitude"
+                        value={longitude}
+                        onChange={(value) => setLongitude(value)}
+                        testId="userLongitude"
+            />
             <button onClick={handleCalculate} data-test-id="calculate">Calculate</button>
 
             {error && <p style={{ color: 'red' }}>{error}</p>}
