@@ -1,6 +1,7 @@
 import React, { useState,useEffect } from 'react';
 import InputField from './InputField';
 import PriceBreakdown from './PriceBreakdown';
+import GetLocationButton from './GetLocationButton';
 import { fetchStaticData, fetchDynamicData } from '../utilities/api';
 import { calculateSurcharge, calculateDeliveryFee, calculateTotalPrice, calculateHaversineDistance } from '../utilities/calculations';
 
@@ -9,6 +10,7 @@ const DeliveryCalculator: React.FC = () => {
     const [cartValue, setCartValue] = useState<string | number>('');
     const [latitude, setLatitude] = useState<string | number>('');
     const [longitude, setLongitude] = useState<string | number>('');
+    const [locationError, setLocationError] = useState('');
     const [results, setResults] = useState<{
         cartValue: number;
         smallOrderSurcharge: number;
@@ -54,7 +56,9 @@ const DeliveryCalculator: React.FC = () => {
             );
 
             if (deliveryFee === null) {
-                setError('Delivery is not possible for the given distance.');
+                setError(
+                    `The delivery distance (${Math.round(deliveryDistance)} meters) is too far for this venue. Please try a closer venue.`
+                );
                 setResults(null);
                 return;
             }
@@ -90,24 +94,38 @@ const DeliveryCalculator: React.FC = () => {
             />
             <InputField label="Cart Value (€)"
                         value={cartValue}
-                        onChange={(value) => setCartValue(value)}
+                        onChange={(value) => setCartValue(Number(value))}
                         type="number"
                         testId="cartValue"
             />
+
+            {/* Get Location Button */}
+            <GetLocationButton setLatitude={setLatitude}
+                               setLongitude={setLongitude}
+                               setLocationError={setLocationError}
+            />
+            {locationError && <p style={{ color: 'red' }}>{locationError}</p>}
+
+            {/* Fallback for Manual Latitude and Longitude */}
+            <p>If location access is denied, please manually input your latitude and longitude below:</p>
             <InputField label="Latitude"
                         value={latitude}
-                        onChange={(value) => setLatitude(value)}
+                        onChange={setLatitude}
                         testId="userLatitude"
             />
             <InputField label="Longitude"
                         value={longitude}
-                        onChange={(value) => setLongitude(value)}
-                        testId="userLongitude"
-            />
-            <button onClick={handleCalculate} data-test-id="calculate">Calculate</button>
+                        onChange={setLongitude}
+                        testId="userLongitude" />
 
+            {/* Calculate Button */}
+            <button onClick={handleCalculate}
+                    data-test-id="calculate">Calculate</button>
+
+            {/* Error Message */}
             {error && <p style={{ color: 'red' }}>{error}</p>}
 
+            {/* Results Display */}
             {results && results.deliveryFee !== null && (
                 <PriceBreakdown
                     cartValue={results.cartValue}
