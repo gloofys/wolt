@@ -4,6 +4,7 @@ import PriceBreakdown from './PriceBreakdown';
 import GetLocationButton from './GetLocationButton';
 import { fetchStaticData, fetchDynamicData } from '../utilities/api';
 import { calculateSurcharge, calculateDeliveryFee, calculateTotalPrice, calculateHaversineDistance } from '../utilities/calculations';
+import { DeliverySpecs } from '../utilities/types';
 
 const DeliveryCalculator: React.FC = () => {
     const [venueSlug, setVenueSlug] = useState('');
