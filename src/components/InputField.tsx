@@ -6,19 +6,29 @@ interface InputFieldProps {
     onChange: (value: string | number) => void;
     type?: 'text' | 'number';
     testId: string;
+    step?: string; // Allows setting step dynamically
 }
 
-const InputField: React.FC<InputFieldProps> = ({ label, value, onChange, type = 'text', testId }) => {
+const InputField: React.FC<InputFieldProps> = ({
+                                                   label,
+                                                   value,
+                                                   onChange,
+                                                   type = 'text',
+                                                   testId,
+                                                   step = '1', // Default step is 1 if not provided
+                                               }) => {
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const inputValue = e.target.value;
 
-        // For number type inputs, validate decimal format
         if (type === 'number') {
-            const regex = /^\d*\.?\d{0,2}$/; // Matches numbers with optional decimals (max 2 digits)
+            const decimalPlaces = step.includes('.') ? step.split('.')[1].length : 0; // Determine precision from step
+            const regex = new RegExp(`^\\d*\\.?\\d{0,${decimalPlaces}}$`); // Match based on precision
+
             if (!regex.test(inputValue)) {
                 return; // Ignore invalid input
             }
-            onChange(inputValue === '' ? '' : parseFloat(inputValue)); // Convert to number or empty string
+
+            onChange(inputValue === '' ? '' : parseFloat(inputValue));
         } else {
             onChange(inputValue); // For text, just pass the value
         }
@@ -26,15 +36,15 @@ const InputField: React.FC<InputFieldProps> = ({ label, value, onChange, type = 
 
     return (
         <div>
-            <label>
-                {label}
-                <input
-                    type={type}
-                    value={value}
-                    onChange={handleInputChange}
-                    data-test-id={testId}
-                />
-            </label>
+            <label htmlFor={testId}>{label}</label>
+            <input
+                id={testId}
+                type={type}
+                step={step} // Use the provided step
+                value={value === '' ? '' : value}
+                onChange={handleInputChange}
+                data-test-id={testId}
+            />
         </div>
     );
 };

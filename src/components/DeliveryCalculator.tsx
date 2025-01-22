@@ -93,11 +93,13 @@ const DeliveryCalculator: React.FC = () => {
                         onChange={setVenueSlug}
                         testId="venueSlug"
             />
-            <InputField label="Cart Value (€)"
-                        value={cartValue}
-                        onChange={(value) => setCartValue(Number(value))}
-                        type="number"
-                        testId="cartValue"
+            <InputField
+                label="Cart Value (€)"
+                value={cartValue}
+                onChange={(value) => setCartValue(value === '' ? '' : Number(value))}
+                type="number"
+                testId="cartValue"
+                step="0.01"
             />
 
             {/* Get Location Button */}
@@ -112,12 +114,17 @@ const DeliveryCalculator: React.FC = () => {
             <InputField label="Latitude"
                         value={latitude}
                         onChange={setLatitude}
+                        type="number"
                         testId="userLatitude"
+                        step="0.000001"
             />
             <InputField label="Longitude"
                         value={longitude}
                         onChange={setLongitude}
-                        testId="userLongitude" />
+                        type="number"
+                        testId="userLongitude"
+                        step="0.000001"
+            />
 
             {/* Calculate Button */}
             <button onClick={handleCalculate}
