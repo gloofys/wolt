@@ -1,12 +1,6 @@
 import React from 'react';
-
-interface PriceBreakdownProps {
-    cartValue: number;
-    smallOrderSurcharge: number;
-    deliveryFee: number;
-    deliveryDistance: number;
-    totalPrice: number;
-}
+import '../assets/styles/priceBreakDown.css'
+import {PriceBreakdownProps} from "../utilities/types";
 
 const PriceBreakdown: React.FC<PriceBreakdownProps> = ({
                                                            cartValue,
@@ -20,14 +14,36 @@ const PriceBreakdown: React.FC<PriceBreakdownProps> = ({
 
     return (
         <div>
-            <h2>Price Breakdown</h2>
-            <p>Cart Value: <span data-raw-value={cartValue}>{formatCurrency(cartValue)}</span></p>
-            <p>Small Order Surcharge: <span data-raw-value={smallOrderSurcharge}>{formatCurrency(smallOrderSurcharge)}</span></p>
-            <p>Delivery Fee: <span data-raw-value={deliveryFee}>{formatCurrency(deliveryFee)}</span></p>
-            <p>Delivery Distance: <span data-raw-value={deliveryDistance}>{formatDistance(deliveryDistance)}</span></p>
-            <p><strong>Total Price: <span data-raw-value={totalPrice}>{formatCurrency(totalPrice)}</span></strong></p>
+            <h2 id="price-breakdown-title">Price Breakdown</h2>
+            <dl>
+                <div>
+                    <dt>Cart Value:</dt>
+                    <dd data-raw-value={cartValue}>{formatCurrency(cartValue)}</dd>
+                </div>
+                <div>
+                    <dt>Small Order Surcharge:</dt>
+                    <dd data-raw-value={smallOrderSurcharge}>{formatCurrency(smallOrderSurcharge)}</dd>
+                </div>
+                <div>
+                    <dt>Delivery Fee:</dt>
+                    <dd data-raw-value={deliveryFee}>{formatCurrency(deliveryFee)}</dd>
+                </div>
+                <div>
+                    <dt>Delivery Distance:</dt>
+                    <dd data-raw-value={deliveryDistance}>{formatDistance(deliveryDistance)}</dd>
+                </div>
+                <div>
+                    <dt>
+                        <strong>Total Price:</strong>
+                    </dt>
+                    <dd data-raw-value={totalPrice}>
+                        <strong>{formatCurrency(totalPrice)}</strong>
+                    </dd>
+                </div>
+            </dl>
         </div>
     );
+
 };
 
 export default PriceBreakdown;

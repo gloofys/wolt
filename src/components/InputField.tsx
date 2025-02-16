@@ -1,52 +1,49 @@
-import React from 'react';
+import React, { forwardRef } from "react";
+import "../assets/styles/input.css";
+import ErrorMessage from "./ErrorMessage";
 
 interface InputFieldProps {
     label: string;
     value: string | number;
     onChange: (value: string | number) => void;
-    type?: 'text' | 'number';
+    type?: "text" | "number";
     testId: string;
-    step?: string; // Allows setting step dynamically
+    step?: string;
+    min?: string | number;
+    errorMessage?: string;
+    classname?: string;
+    clearError?: () => void;
 }
 
-const InputField: React.FC<InputFieldProps> = ({
-                                                   label,
-                                                   value,
-                                                   onChange,
-                                                   type = 'text',
-                                                   testId,
-                                                   step = '1', // Default step is 1 if not provided
-                                               }) => {
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const inputValue = e.target.value;
+const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
+    ({ label, value, onChange, type = "text", testId, step, min, errorMessage, classname, clearError }, ref) => {
+        const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+            if (clearError) clearError();
+            onChange(e.target.value);
+        };
 
-        if (type === 'number') {
-            const decimalPlaces = step.includes('.') ? step.split('.')[1].length : 0; // Determine precision from step
-            const regex = new RegExp(`^\\d*\\.?\\d{0,${decimalPlaces}}$`); // Match based on precision
-
-            if (!regex.test(inputValue)) {
-                return; // Ignore invalid input
-            }
-
-            onChange(inputValue === '' ? '' : parseFloat(inputValue));
-        } else {
-            onChange(inputValue); // For text, just pass the value
-        }
-    };
-
-    return (
-        <div>
-            <label htmlFor={testId}>{label}</label>
-            <input
-                id={testId}
-                type={type}
-                step={step} // Use the provided step
-                value={value === '' ? '' : value}
-                onChange={handleInputChange}
-                data-test-id={testId}
-            />
-        </div>
-    );
-};
+        return (
+            <div className={`input-wrapper ${classname || ""}`}>
+                <input
+                    id={testId}
+                    ref={ref}
+                    type={type}
+                    value={value}
+                    onChange={handleInputChange}
+                    data-test-id={testId}
+                    step={step}
+                    min={min}
+                    className={`input-field ${errorMessage ? "input-error" : ""}`}
+                    aria-invalid={!!errorMessage}
+                    aria-describedby={errorMessage ? `${testId}-error` : undefined}
+                />
+                <label htmlFor={testId} className="input-label">
+                    {label}
+                </label>
+                <ErrorMessage message={errorMessage || ""} id={`${testId}-error`} />
+            </div>
+        );
+    }
+);
 
 export default InputField;

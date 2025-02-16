@@ -1,0 +1,109 @@
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-group label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #555;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+header h1 {
+    font-size: 2rem;
+    color: #333;
+}
+/* Responsive Styles */
+@media (max-width: 480px) {
+    header h1 {
+        font-size: 1.5rem; /* Smaller font size */
+        text-align: center; /* Ensure the text is centered */
+        word-wrap: break-word; /* Handle long words */
+        white-space: normal; /* Allow text wrapping */
+    }
+
+    header {
+        margin-bottom: 1rem; /* Reduce spacing below the header */
+    }
+
+    .delivery-calculator {
+        padding: 1rem; /* Reduce overall padding for smaller screens */
+    }
+}
+
+.delivery-calculator {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    max-width: 50rem;
+    padding: 2rem;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+
+.location-button-group {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch; /* Makes the button full width */
+    gap: 0.5rem; /* Spacing between button and helper text */
+    margin-bottom: 1rem;
+}
+
+.helper-text {
+    font-size: 0.85rem;
+    color: #555; /* Subtle gray color for the text */
+    text-align: center;
+    margin-bottom: 0.5rem;
+}
+
+
+.error-message {
+    color: rgba(249, 58, 37, 1);
+    font-size: 14px;
+    margin-top: 5px;
+    max-width: 100%; /* Ensure it doesn’t exceed the container */
+    word-wrap: break-word; /* Break long words */
+    line-height: 1.4; /* Improve readability for multi-line messages */
+}
+
+.location-section{
+    margin-top: 3rem;
+}
+
+@media (min-width: 768px) {
+    .delivery-calculator {
+        max-width: 35rem; /* Increase the maximum width for larger screens */
+        min-width: 20rem;
+        width: 100%; /* Keep it responsive */
+        padding: 4rem; /* Add more padding to increase height visually */
+        min-height: 30rem; /* Set a minimum height for desktop layout */
+        margin:2rem auto;
+    }
+    .delivery-calculator h1 {
+        font-size: 2rem; /* Increase font size for the title */
+    }
+
+    .form {
+        gap: 1.5rem; /* Increase spacing between form fields */
+    }
+}
+.results-container span {
+    font-size: 1rem; /* Adjust font size */
+    color: #888; /* Subtle color for the placeholder text */
+    text-align: center; /* Ensure text alignment */
+}

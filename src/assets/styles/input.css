@@ -1,0 +1,66 @@
+input[type='text'],
+input[type='number'] {
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 0.9rem;
+}
+
+input[type='text']:focus,
+input[type='number']:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 4px rgba(0, 123, 255, 0.3);
+}
+
+.input-wrapper {
+    position: relative;
+    margin-bottom: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+
+}
+
+.input-label {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #202125a3;
+    transition: 0.2s ease-in-out;
+    pointer-events: none;
+    font-size: 16px;
+}
+
+.input-field:focus ~ .input-label,
+.input-field:not(:placeholder-shown) ~ .input-label {
+    top: -10px;
+    font-size: 12px;
+    color: #007bff;
+}
+
+.input-field {
+    width: 100%;
+    outline: none;
+    transition: border-color 0.3s ease-in-out;
+    box-sizing: border-box;
+}
+
+.input-wrapper .error-message {
+    height: 18px; /* Reserve space for the error message */
+    margin-top: 5px;
+    color: rgba(249, 58, 37, 1);
+    font-size: 14px;
+    visibility: hidden; /* Initially hidden */
+    opacity: 0; /* Fade-in effect */
+    transition: visibility 0s, opacity 0.3s ease-in-out;
+}
+
+.input-wrapper .error-message.visible {
+    visibility: visible; /* Show error */
+    opacity: 1;
+}
+
+.input-field.input-error {
+    border-color: rgba(249, 58, 37, 1);
+}

@@ -1,17 +1,39 @@
-import React, { useState,useEffect } from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import InputField from './InputField';
-import PriceBreakdown from './PriceBreakdown';
 import GetLocationButton from './GetLocationButton';
+import ErrorMessage from './ErrorMessage';
 import { fetchStaticData, fetchDynamicData } from '../utilities/api';
-import { calculateSurcharge, calculateDeliveryFee, calculateTotalPrice, calculateHaversineDistance } from '../utilities/calculations';
+import {
+    calculateSurcharge,
+    calculateDeliveryFee,
+    calculateTotalPrice,
+    calculateHaversineDistance,
+} from '../utilities/calculations';
+import { validateInputs } from '../utilities/validateInputs';
 import { DeliverySpecs } from '../utilities/types';
-
+import axios from 'axios';
+import '../assets/styles/button.css'
+import '../assets/styles/deliveryCalculator.css'
+import PriceBreakdown from "./PriceBreakdown";
 const DeliveryCalculator: React.FC = () => {
     const [venueSlug, setVenueSlug] = useState('');
     const [cartValue, setCartValue] = useState<string | number>('');
     const [latitude, setLatitude] = useState<string | number>('');
     const [longitude, setLongitude] = useState<string | number>('');
     const [locationError, setLocationError] = useState('');
+    const [validationErrors, setValidationErrors] = useState({
+        generalError: '',
+        latitudeError: '',
+        longitudeError: '',
+        cartValueError: '',
+        venueSlugError: '',
+    });
+    const venueSlugRef = useRef<HTMLInputElement>(null);
+    const cartValueRef = useRef<HTMLInputElement>(null);
+    const longitudeRef = useRef<HTMLInputElement>(null);
+    const latitudeRef = useRef<HTMLInputElement>(null);
+
+
     const [results, setResults] = useState<{
         cartValue: number;
         smallOrderSurcharge: number;
@@ -20,10 +42,21 @@ const DeliveryCalculator: React.FC = () => {
         totalPrice: number | null;
     } | null>(null);
     const [error, setError] = useState('');
+    const resultsRef = useRef<HTMLDivElement | null>(null);
 
     const handleCalculate = async () => {
-        if (!venueSlug || cartValue === '' || latitude === '' || longitude === '') {
-            setError('All fields are required. Please provide valid inputs.');
+        setValidationErrors({
+            generalError: '',
+            latitudeError: '',
+            longitudeError: '',
+            cartValueError: '',
+            venueSlugError: '',
+        });
+
+        const errors = validateInputs(venueSlug, cartValue, latitude, longitude);
+        setValidationErrors(errors);
+
+        if (Object.values(errors).some((error) => error)) {
             return;
         }
 
@@ -33,6 +66,18 @@ const DeliveryCalculator: React.FC = () => {
                 fetchDynamicData(venueSlug),
             ]);
 
+            const distanceRanges = dynamicData?.delivery_pricing?.distance_ranges;
+
+            if (
+                !distanceRanges ||
+                distanceRanges.length === 0 ||
+                distanceRanges.every(range => range.min === 0 && range.max === 0)
+            ) {
+                setError("The selected venue does not support delivery.");
+                setResults(null);
+                return;
+            }
+
             const [venueLongitude, venueLatitude] = venueCoordinates;
             const deliveryDistance = calculateHaversineDistance(
                 Number(latitude),
@@ -40,14 +85,6 @@ const DeliveryCalculator: React.FC = () => {
                 venueLatitude,
                 venueLongitude
             );
-
-            console.log('Delivery Distance Calculation:', {
-                latitude: Number(latitude),
-                venueLatitude,
-                longitude: Number(longitude),
-                venueLongitude,
-                deliveryDistance,
-            });
 
             const surcharge = calculateSurcharge(Number(cartValue) * 100, dynamicData.order_minimum_no_surcharge);
             const deliveryFee = calculateDeliveryFee(
@@ -58,7 +95,7 @@ const DeliveryCalculator: React.FC = () => {
 
             if (deliveryFee === null) {
                 setError(
-                    `The delivery distance (${Math.round(deliveryDistance)} meters) is too far for this venue. Please try a closer venue.`
+                    `The delivery distance (${Math.round(deliveryDistance)}m) is too far for this venue. Please try a closer venue.`
                 );
                 setResults(null);
                 return;
@@ -74,75 +111,174 @@ const DeliveryCalculator: React.FC = () => {
                 totalPrice,
             });
             setError('');
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        } catch (err) {
-            setError('Error fetching venue data. Please check the venue slug and try again.');
+        } catch (err: unknown) {
+            if (axios.isAxiosError(err)) {
+                const errorMessage =
+                    err.response?.status === 404
+                        ? "Error fetching venue data. Please check the venue slug and try again."
+                        : err.message || "An error occurred while fetching data.";
+                setValidationErrors((prev) => ({ ...prev, venueSlugError: errorMessage }));
+            } else {
+                setError(err instanceof Error ? err.message : "An unexpected error occurred.");
+            }
+
             setResults(null);
+            console.error("Error during calculation:", err);
         }
     };
     useEffect(() => {
-        if (results) {
-            console.log('Calculation Results:', results);
+        const focusFirstInvalidField = () => {
+            if (validationErrors.venueSlugError && venueSlugRef.current) {
+                venueSlugRef.current.focus();
+            } else if (validationErrors.cartValueError && cartValueRef.current) {
+                cartValueRef.current.focus();
+            } else if (validationErrors.latitudeError && latitudeRef.current) {
+                latitudeRef.current.focus();
+            } else if (validationErrors.longitudeError && longitudeRef.current) {
+                longitudeRef.current.focus();
+            }
+        };
+
+        if (Object.values(validationErrors).some((error) => error)) {
+            focusFirstInvalidField();
         }
-    }, [results]); // This will run whenever `results` is updated
+    }, [validationErrors]);
+
+
+    useEffect(() => {
+        setResults(null);
+        setError('');
+    }, [venueSlug, cartValue, latitude, longitude]);
+
+    useEffect(() => {
+        if(results){
+            setLocationError('');
+
+            if (results && resultsRef.current) {
+                resultsRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+    }, [results]);
+
 
     return (
-        <div>
-            <InputField label="Venue Slug"
-                        value={venueSlug}
-                        onChange={setVenueSlug}
-                        testId="venueSlug"
-            />
-            <InputField
-                label="Cart Value (€)"
-                value={cartValue}
-                onChange={(value) => setCartValue(value === '' ? '' : Number(value))}
-                type="number"
-                testId="cartValue"
-                step="0.01"
-            />
-
-            {/* Get Location Button */}
-            <GetLocationButton setLatitude={setLatitude}
-                               setLongitude={setLongitude}
-                               setLocationError={setLocationError}
-            />
-            {locationError && <p style={{ color: 'red' }}>{locationError}</p>}
-
-            {/* Fallback for Manual Latitude and Longitude */}
-            <p>If location access is denied, please manually input your latitude and longitude below:</p>
-            <InputField label="Latitude"
-                        value={latitude}
-                        onChange={setLatitude}
-                        type="number"
-                        testId="userLatitude"
-                        step="0.000001"
-            />
-            <InputField label="Longitude"
-                        value={longitude}
-                        onChange={setLongitude}
-                        type="number"
-                        testId="userLongitude"
-                        step="0.000001"
-            />
-
-            {/* Calculate Button */}
-            <button onClick={handleCalculate}
-                    data-test-id="calculate">Calculate</button>
-
-            {/* Error Message */}
-            {error && <p style={{ color: 'red' }}>{error}</p>}
-
-            {/* Results Display */}
-            {results && results.deliveryFee !== null && (
-                <PriceBreakdown
-                    cartValue={results.cartValue}
-                    smallOrderSurcharge={results.smallOrderSurcharge}
-                    deliveryFee={results.deliveryFee}
-                    deliveryDistance={results.deliveryDistance}
-                    totalPrice={results.totalPrice!}
+        <div className="delivery-calculator">
+            <header>
+                <h1>Delivery Order Price Calculator</h1>
+            </header>
+            <form className="form" aria-labelledby="delivery-caluclator-venue-and-cart-value">
+                <InputField label="Venue slug"
+                            value={venueSlug}
+                            onChange={(value) => {
+                                setVenueSlug(value.toString());
+                                setError('');
+                                setValidationErrors((prev) => ({...prev, venueSlugError: ""})); // Clear the error
+                            }}
+                            testId="venueSlug"
+                            errorMessage={validationErrors.venueSlugError}
+                            ref={venueSlugRef}
+                            aria-label="Venue slug field"
                 />
-            )}
+
+                <InputField
+                    label="Cart value (€)"
+                    value={cartValue}
+                    onChange={(value) => {
+                        setCartValue(value);
+                        setValidationErrors((prev) => ({...prev, cartValueError: ""}));
+                    }}
+                    type="number"
+                    ref={cartValueRef}
+                    testId="cartValue"
+                    step="0.01"
+                    min="0"
+                    errorMessage={validationErrors.cartValueError}
+                    classname="custom-class"
+                    aria-label="Cart Value Field"
+                />
+
+            </form>
+
+
+            <div className="location-section">
+                <div className="location-button-group">
+                    <GetLocationButton
+                        setLatitude={(value) => {
+                            setLatitude(value);
+                            setValidationErrors((prev) => ({...prev, latitudeError: ""}));
+                        }}
+                        setLongitude={(value) => {
+                            setLongitude(value);
+                            setValidationErrors((prev) => ({...prev, longitudeError: ""}));
+                        }}
+                        setLocationError={setLocationError}
+
+
+                    />
+                    <span className="helper-text">or enter your coordinates manually below</span>
+                    <ErrorMessage message={locationError}/>
+                </div>
+
+                <form className="form" aria-labelledby="delivery-calculator-latitude-longitude">
+                    <InputField
+                        label="User latitude"
+                        value={latitude}
+                        onChange={(value) => {
+                            setLatitude(value);
+                            setValidationErrors((prev) => ({...prev, latitudeError: ""})); // Clear the error
+                            setLocationError("");
+                        }}
+                        type="text"
+                        testId="userLatitude"
+                        ref={latitudeRef}
+                        aria-label="Latitude field"
+                        errorMessage={validationErrors.latitudeError}
+                        aria-describedby="latitude-error"
+                    />
+
+                    <InputField
+                        label="User longitude"
+                        value={longitude}
+                        onChange={(value) => {
+                            setLongitude(value);
+                            setValidationErrors((prev) => ({...prev, longitudeError: ""})); // Clear the error
+                            setLocationError("");
+                        }}
+                        type="text"
+                        ref={longitudeRef}
+                        testId="userLongitude"
+                        aria-label="Longitude field"
+                        errorMessage={validationErrors.longitudeError}
+                        aria-describedby="longitude-error"
+                    />
+
+                </form>
+            </div>
+            <div className="button-container">
+                <button onClick={handleCalculate} className="calculate-button">
+                    Calculate
+                </button>
+                <ErrorMessage message={validationErrors.generalError || error}/>
+            </div>
+
+            <div
+                ref={resultsRef}
+                aria-live="polite"
+                aria-atomic="true"
+                className={`results-container ${results ? '' : 'hidden-results'}`}
+            >
+                {results ? (
+                    <PriceBreakdown
+                        cartValue={results.cartValue}
+                        smallOrderSurcharge={results.smallOrderSurcharge}
+                        deliveryFee={results.deliveryFee ?? 0}
+                        deliveryDistance={results.deliveryDistance}
+                        totalPrice={results.totalPrice ?? 0}
+                    />
+                ) : (
+                    <span>Results will be displayed here after a successful calculation.</span>
+                )}
+            </div>
         </div>
     );
 };

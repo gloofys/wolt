@@ -1,10 +1,10 @@
 {
   "compilerOptions": {
-    "jsx": "react-jsx", // Enable JSX support
-    "esModuleInterop": true, // Allow default imports from CommonJS modules
-    "moduleResolution": "node", // Ensure modules resolve correctly
-    "strict": true, // Enable strict mode for better type safety
-    "target": "ES6", // Specify ECMAScript target version
-    "module": "ESNext" // Use modern module system
+    "jsx": "react-jsx",
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "strict": true,
+    "target": "ES6",
+    "module": "ESNext"
   }
 }

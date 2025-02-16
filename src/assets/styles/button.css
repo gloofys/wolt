@@ -1,0 +1,55 @@
+.calculate-button {
+    width: 100%;
+    padding: 0.75rem;
+    font-size: 1rem;
+    font-weight: bold;
+    color: white;
+    background-color: #009de0;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.calculate-button:hover {
+    background-color: #1fa9e4;
+}
+
+.button-container {
+    display: flex;
+    flex-direction: column; /* Stack the button and error vertically */
+    align-items: center; /* Center align items */
+    gap: 0.5rem; /* Space between button and error */
+    min-height: 3rem; /* Reserve enough space for button and error */
+}
+
+.get-location-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    font-weight: 500;
+    color:  #009de0;
+    background-color: #ebf7fd;
+    border: 1px solid #cce7ff;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Soft shadow */
+}
+
+.get-location-button:hover {
+    background-color: #d6effa; /* Darker blue on hover */
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.15); /* Slightly deeper shadow */
+}
+
+
+.location-icon {
+    fill: #009de0; /* Match text color */
+    transition: fill 0.3s ease;
+}
+
+.get-location-button:hover .location-icon {
+    fill: #0056b3; /* Match hover text color */
+}
