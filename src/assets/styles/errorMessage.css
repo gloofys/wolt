@@ -1,0 +1,22 @@
+/* ErrorMessage.css */
+
+.error-message-comp {
+    color: rgba(249, 58, 37, 1);
+    font-size: 0.85rem;
+    margin: 0;
+    line-height: 1.2;
+    min-height: 1.5rem;
+    display: flex;
+    align-items: center;
+    max-width: 100%;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.error-message-comp.visible {
+    visibility: visible;
+    opacity: 1;
+}

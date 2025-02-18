@@ -24,9 +24,9 @@ export const calculateDeliveryFee = (
 };
 
 
-export const calculateTotalPrice = (cartValue: number, surcharge: number, deliveryFee: number): number => {
-    return cartValue + surcharge + deliveryFee;
-};
+export const calculateTotalPrice = (cartValue: number, surcharge: number, deliveryFee: number): number =>
+    cartValue + surcharge + deliveryFee;
+
 
 
 export const calculateHaversineDistance = (

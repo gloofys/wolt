@@ -34,20 +34,29 @@ export const validateInputs = (
     // Latitude validation
     if (latitude === '') {
         errors.latitudeError = 'Latitude is required.';
-    } else if (!/^[-+]?\d+(\.\d+)?$/.test(latitude.toString()) || Number(latitude) < -90 || Number(latitude) > 90) {
-        errors.latitudeError = 'Latitude must be between -90 and 90.';
+    } else {
+        const latitudeNumber = Number(latitude);
+        if (isNaN(latitudeNumber) || latitudeNumber < -90 || latitudeNumber > 90) {
+            errors.latitudeError = 'Latitude must be between -90 and 90.';
+        }
     }
 
-    // Longitude validation
+// Longitude validation
     if (longitude === '') {
         errors.longitudeError = 'Longitude is required.';
-    } else if (!/^[-+]?\d+(\.\d+)?$/.test(longitude.toString()) || Number(longitude) < -180 || Number(longitude) > 180) {
-        errors.longitudeError = 'Longitude must be between -180 and 180.';
+    } else {
+        const longitudeNumber = Number(longitude);
+        if (isNaN(longitudeNumber) || longitudeNumber < -180 || longitudeNumber > 180) {
+            errors.longitudeError = 'Longitude must be between -180 and 180.';
+        }
     }
 
     return errors;
 };
-export const validateCoordinates = (location: any): [number, number] => {
+interface Location {
+    coordinates: [number, number];
+}
+export const validateCoordinates = (location: Location): [number, number] => {
     if (!location || !location.coordinates || location.coordinates.length !== 2) {
         throw new Error("Delivery is not available for this venue. Please try selecting a different venue.");
     }

@@ -43,6 +43,7 @@ const DeliveryCalculator: React.FC = () => {
     } | null>(null);
     const [error, setError] = useState('');
     const resultsRef = useRef<HTMLDivElement | null>(null);
+    const CENTS_MULTIPLIER = 100
 
     const handleCalculate = async () => {
         setValidationErrors({
@@ -86,7 +87,7 @@ const DeliveryCalculator: React.FC = () => {
                 venueLongitude
             );
 
-            const surcharge = calculateSurcharge(Number(cartValue) * 100, dynamicData.order_minimum_no_surcharge);
+            const surcharge = calculateSurcharge(Number(cartValue) * CENTS_MULTIPLIER, dynamicData.order_minimum_no_surcharge);
             const deliveryFee = calculateDeliveryFee(
                 dynamicData.delivery_pricing.base_price,
                 deliveryDistance,
@@ -101,10 +102,10 @@ const DeliveryCalculator: React.FC = () => {
                 return;
             }
 
-            const totalPrice = calculateTotalPrice(Number(cartValue) * 100, surcharge, deliveryFee);
+            const totalPrice = calculateTotalPrice(Number(cartValue) * CENTS_MULTIPLIER, surcharge, deliveryFee);
 
             setResults({
-                cartValue: Number(cartValue) * 100,
+                cartValue: Number(cartValue) * CENTS_MULTIPLIER,
                 smallOrderSurcharge: surcharge,
                 deliveryFee,
                 deliveryDistance: Math.round(deliveryDistance),
@@ -225,7 +226,7 @@ const DeliveryCalculator: React.FC = () => {
                         value={latitude}
                         onChange={(value) => {
                             setLatitude(value);
-                            setValidationErrors((prev) => ({...prev, latitudeError: ""})); // Clear the error
+                            setValidationErrors((prev) => ({...prev, latitudeError: ""}));
                             setLocationError("");
                         }}
                         type="text"
@@ -241,7 +242,7 @@ const DeliveryCalculator: React.FC = () => {
                         value={longitude}
                         onChange={(value) => {
                             setLongitude(value);
-                            setValidationErrors((prev) => ({...prev, longitudeError: ""})); // Clear the error
+                            setValidationErrors((prev) => ({...prev, longitudeError: ""}));
                             setLocationError("");
                         }}
                         type="text"
