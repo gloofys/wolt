@@ -6,6 +6,7 @@ jest.mock('../assets/styles/input.css', () => {});
 jest.mock('../assets/styles/deliveryCalculator.css', () => {});
 jest.mock('../assets/styles/priceBreakDown.css', () => {});
 jest.mock('../assets/styles/button.css', () => {});
+jest.mock('../assets/styles/errorMessage.css', () => {});
 jest.mock('../utilities/api', () => ({
     fetchStaticData: jest.fn(),
     fetchDynamicData: jest.fn(),

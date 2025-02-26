@@ -18,12 +18,10 @@ export const validateInputs = (
         venueSlugError: '',
     };
 
-    // Venue slug validation
     if (!venueSlug) {
         errors.venueSlugError = 'Venue Slug is required.';
     }
 
-    // Cart value validation
     if (cartValue === '') {
         errors.cartValueError = 'Cart value is required.';
     }
@@ -31,7 +29,6 @@ export const validateInputs = (
         errors.cartValueError = 'Cart value must be greater than 0.';
     }
 
-    // Latitude validation
     if (latitude === '') {
         errors.latitudeError = 'Latitude is required.';
     } else {
@@ -41,7 +38,6 @@ export const validateInputs = (
         }
     }
 
-// Longitude validation
     if (longitude === '') {
         errors.longitudeError = 'Longitude is required.';
     } else {
@@ -50,12 +46,12 @@ export const validateInputs = (
             errors.longitudeError = 'Longitude must be between -180 and 180.';
         }
     }
-
     return errors;
 };
 interface Location {
     coordinates: [number, number];
 }
+
 export const validateCoordinates = (location: Location): [number, number] => {
     if (!location || !location.coordinates || location.coordinates.length !== 2) {
         throw new Error("Delivery is not available for this venue. Please try selecting a different venue.");

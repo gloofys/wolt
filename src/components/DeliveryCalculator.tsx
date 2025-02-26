@@ -127,23 +127,8 @@ const DeliveryCalculator: React.FC = () => {
             console.error("Error during calculation:", err);
         }
     };
-    useEffect(() => {
-        const focusFirstInvalidField = () => {
-            if (validationErrors.venueSlugError && venueSlugRef.current) {
-                venueSlugRef.current.focus();
-            } else if (validationErrors.cartValueError && cartValueRef.current) {
-                cartValueRef.current.focus();
-            } else if (validationErrors.latitudeError && latitudeRef.current) {
-                latitudeRef.current.focus();
-            } else if (validationErrors.longitudeError && longitudeRef.current) {
-                longitudeRef.current.focus();
-            }
-        };
 
-        if (Object.values(validationErrors).some((error) => error)) {
-            focusFirstInvalidField();
-        }
-    }, [validationErrors]);
+
 
 
     useEffect(() => {

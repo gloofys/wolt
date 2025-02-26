@@ -2,6 +2,7 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import InputField from '../components/InputField';
 jest.mock('../assets/styles/input.css', () => {});
+jest.mock('../assets/styles/errorMessage.css', () => {});
 
 describe('InputField Component', () => {
     it('should render the label and input field', () => {

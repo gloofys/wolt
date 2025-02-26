@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import ErrorMessage from '../components/ErrorMessage';
+jest.mock('../assets/styles/errorMessage.css', () => {});
 
 describe('ErrorMessage', () => {
     it('should render the error message', () => {
